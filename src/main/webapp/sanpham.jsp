@@ -76,14 +76,35 @@
             <tr>
                 <td>${s.ma}</td><td>${s.tenSanPham}</td><td>${s.moTa}</td><td>${s.trangThai}</td>
                 <td>
-                    <a href="${pageContext.request.contextPath}/admin/san-pham/edit?id=${s.id}" class="btn btn-sm btn-warning">Sửa</a>
+                    <a href="${pageContext.request.contextPath}/admin/san-pham/edit?id=${s.id}&page=${currentPage}" class="btn btn-sm btn-warning">Sửa</a>
                     <a href="${pageContext.request.contextPath}/admin/san-pham/delete?id=${s.id}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
-                    <a href="${pageContext.request.contextPath}/admin/san-pham/detail?id=${s.id}" class="btn btn-sm btn-info text-white">Detail</a>
+                    <a href="${pageContext.request.contextPath}/admin/san-pham/detail?id=${s.id}&page=${currentPage}" class="btn btn-sm btn-info text-white">Detail</a>
                 </td>
             </tr>
         </c:forEach>
         </tbody>
     </table>
+    <!-- THANH PHÂN TRANG BOOTSTRAP 5 -->
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <!-- Nút Trước (Previous) -->
+            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                <a class="page-link" href="${pageContext.request.contextPath}/admin/san-pham?page=${currentPage - 1}&keyword=${param.keyword}&trangThai=${param.trangThai}">Trước</a>
+            </li>
+
+            <!-- Các nút số trang -->
+            <c:forEach begin="1" end="${totalPages}" var="i">
+                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" href="${pageContext.request.contextPath}/admin/san-pham?page=${i}&keyword=${param.keyword}&trangThai=${param.trangThai}">${i}</a>
+                </li>
+            </c:forEach>
+
+            <!-- Nút Sau (Next) -->
+            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="${pageContext.request.contextPath}/admin/san-pham?page=${currentPage + 1}&keyword=${param.keyword}&trangThai=${param.trangThai}">Sau</a>
+            </li>
+        </ul>
+    </nav>
 
     <!-- Modal Popup Chi tiết Sản phẩm -->
     <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
@@ -108,14 +129,14 @@
     </div>
 
     <!-- Script tự động kích hoạt Modal khi Controller truyền biến detail sang -->
-    <c:if test="${not empty detailSp}">
+    <c:if test="${not empty detail}">
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                document.getElementById("modalId").innerText = "${detailSp.id}";
-                document.getElementById("modalMa").innerText = "${detailSp.ma}";
-                document.getElementById("modalTen").innerText = "${detailSp.tenSanPham}";
-                document.getElementById("modalMoTa").innerText = "${detailSp.moTa}";
-                document.getElementById("modalTrangThai").innerText = "${detailSp.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}";
+                document.getElementById("modalId").innerText = "${detail.id}";
+                document.getElementById("modalMa").innerText = "${detail.ma}";
+                document.getElementById("modalTen").innerText = "${detail.tenSanPham}";
+                document.getElementById("modalMoTa").innerText = "${detail.moTa}";
+                document.getElementById("modalTrangThai").innerText = "${detail.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}";
 
                 var myModal = new bootstrap.Modal(document.getElementById('detailModal'));
                 myModal.show();

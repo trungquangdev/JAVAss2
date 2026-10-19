@@ -26,5 +26,10 @@ public class HoaDonService {
 
     public void delete(Integer id) {
         hoaDonRepository.delete(id);
+    }public List<HoaDon> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        return hoaDonRepository.getPage(page, pageSize, keyword, trangThai);
+    }
+    public long count(String keyword, Integer trangThai) {
+        return hoaDonRepository.count(keyword, trangThai);
     }
 }

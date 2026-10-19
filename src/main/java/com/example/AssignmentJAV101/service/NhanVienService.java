@@ -29,5 +29,11 @@ public class NhanVienService {
     }
     public List<NhanVien> search(String keyword, Integer trangThai) {
         return nhanVienRepository.search(keyword, trangThai);
+    }public List<NhanVien> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        return nhanVienRepository.getPage(page, pageSize, keyword, trangThai);
+    }
+
+    public long count(String keyword, Integer trangThai) {
+        return nhanVienRepository.count(keyword, trangThai);
     }
 }

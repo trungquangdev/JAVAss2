@@ -2,6 +2,7 @@ package com.example.AssignmentJAV101.repository;
 
 import com.example.AssignmentJAV101.model.HoaDon;
 import com.example.AssignmentJAV101.util.Hibernate;
+import lombok.var;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -44,6 +45,46 @@ public class HoaDonRepository {
                 session.delete(hoaDon);
             }
             transaction.commit();
+        }
+    }public List<HoaDon> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("from HoaDon where 1=1");
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                hql.append(" and (maHoaDon like :kw or khachHang.ten like :kw or nhanVien.ten like :kw)");
+            }
+            if (trangThai != null) {
+                hql.append(" and trangThai = :tt");
+            }
+            var query = session.createQuery(hql.toString(), HoaDon.class);
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("kw", "%" + keyword.trim() + "%");
+            }
+            if (trangThai != null) {
+                query.setParameter("tt", trangThai);
+            }
+            query.setFirstResult((page - 1) * pageSize);
+            query.setMaxResults(pageSize);
+            return query.list();
+        }
+    }
+
+    public long count(String keyword, Integer trangThai) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("select count(id) from HoaDon where 1=1");
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                hql.append(" and (maHoaDon like :kw or khachHang.ten like :kw or nhanVien.ten like :kw)");
+            }
+            if (trangThai != null) {
+                hql.append(" and trangThai = :tt");
+            }
+            var query = session.createQuery(hql.toString(), Long.class);
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("kw", "%" + keyword.trim() + "%");
+            }
+            if (trangThai != null) {
+                query.setParameter("tt", trangThai);
+            }
+            return query.uniqueResult();
         }
     }
 }

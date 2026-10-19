@@ -70,5 +70,41 @@ public class ChiTietSanPhamRepository {
 
             return query.list();
         }
+    }public List<ChiTietSanPham> getPage(int page, int pageSize, Integer idSanPham, Integer idMauSac, Integer idKichCo, Integer trangThai) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("from ChiTietSanPham where 1=1");
+            if (idSanPham != null) hql.append(" and sanPham.id = :idSP");
+            if (idMauSac != null) hql.append(" and mauSac.id = :idMS");
+            if (idKichCo != null) hql.append(" and kichCo.id = :idKC");
+            if (trangThai != null) hql.append(" and trangThai = :tt");
+
+            var query = session.createQuery(hql.toString(), ChiTietSanPham.class);
+            if (idSanPham != null) query.setParameter("idSP", idSanPham);
+            if (idMauSac != null) query.setParameter("idMS", idMauSac);
+            if (idKichCo != null) query.setParameter("idKC", idKichCo);
+            if (trangThai != null) query.setParameter("tt", trangThai);
+
+            query.setFirstResult((page - 1) * pageSize);
+            query.setMaxResults(pageSize);
+            return query.list();
+        }
+    }
+
+    public long count(Integer idSanPham, Integer idMauSac, Integer idKichCo, Integer trangThai) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("select count(id) from ChiTietSanPham where 1=1");
+            if (idSanPham != null) hql.append(" and sanPham.id = :idSP");
+            if (idMauSac != null) hql.append(" and mauSac.id = :idMS");
+            if (idKichCo != null) hql.append(" and kichCo.id = :idKC");
+            if (trangThai != null) hql.append(" and trangThai = :tt");
+
+            var query = session.createQuery(hql.toString(), Long.class);
+            if (idSanPham != null) query.setParameter("idSP", idSanPham);
+            if (idMauSac != null) query.setParameter("idMS", idMauSac);
+            if (idKichCo != null) query.setParameter("idKC", idKichCo);
+            if (trangThai != null) query.setParameter("tt", trangThai);
+
+            return query.uniqueResult();
+        }
     }
 }

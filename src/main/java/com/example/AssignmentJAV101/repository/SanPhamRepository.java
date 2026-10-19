@@ -73,4 +73,58 @@ public class SanPhamRepository {
             return query.list();
         }
     }
+
+    // Lấy danh sách phân trang kết hợp tìm kiếm & lọc
+    public List<SanPham> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("from SanPham where 1=1");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                hql.append(" and (ma like :kw or tenSanPham like :kw or moTa like :kw)");
+            }
+            if (trangThai != null) {
+                hql.append(" and trangThai = :tt");
+            }
+
+            var query = session.createQuery(hql.toString(), SanPham.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("kw", "%" + keyword.trim() + "%");
+            }
+            if (trangThai != null) {
+                query.setParameter("tt", trangThai);
+            }
+
+            // Phân trang trong Hibernate
+            query.setFirstResult((page - 1) * pageSize);
+            query.setMaxResults(pageSize);
+
+            return query.list();
+        }
+    }
+
+    // Đếm tổng số bản ghi thỏa điều kiện tìm kiếm/lọc để tính số trang
+    public long count(String keyword, Integer trangThai) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("select count(id) from SanPham where 1=1");
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                hql.append(" and (ma like :kw or tenSanPham like :kw or moTa like :kw)");
+            }
+            if (trangThai != null) {
+                hql.append(" and trangThai = :tt");
+            }
+
+            var query = session.createQuery(hql.toString(), Long.class);
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                query.setParameter("kw", "%" + keyword.trim() + "%");
+            }
+            if (trangThai != null) {
+                query.setParameter("tt", trangThai);
+            }
+
+            return query.uniqueResult();
+        }
+    }
 }

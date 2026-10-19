@@ -9,12 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.converters.DateConverter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/dot-giam-gia",
@@ -40,32 +38,46 @@ public class DotGiamGiaController extends HttpServlet {
         }
     }
 
-    private void detailDotGiamGia(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        DotGiamGia dgg = dotGiamGiaService.getOne(id);
-        if (dgg == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy đợt giảm giá");
-            return;
+    private void loadPaginationData(HttpServletRequest request) {
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        int page = 1;
+        int pageSize = 5;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
         }
-        request.setAttribute("detailDgg", dgg);
-        request.setAttribute("list", dotGiamGiaService.getAll());
+
+        List<DotGiamGia> list = dotGiamGiaService.getPage(page, pageSize, keyword, trangThai);
+        long totalItems = dotGiamGiaService.count(keyword, trangThai);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) totalPages = 1;
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+    }
+
+    private void showDotGiamGia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        loadPaginationData(request);
+        request.getRequestDispatcher("/dotgiamgia.jsp").forward(request, response);
+    }
+
+    private void detailDotGiamGia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        DotGiamGia detailDgg = dotGiamGiaService.getOne(id);
+        request.setAttribute("detailDgg", detailDgg);
+        loadPaginationData(request);
         request.getRequestDispatcher("/dotgiamgia.jsp").forward(request, response);
     }
 
     private void editDotGiamGia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
-        DotGiamGia dgg = dotGiamGiaService.getOne(id);
-        request.setAttribute("dggEdit", dgg);
-        request.setAttribute("list", dotGiamGiaService.getAll());
-        request.getRequestDispatcher("/dotgiamgia.jsp").forward(request, response);
-    }
-
-    private void showDotGiamGia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String keyword = request.getParameter("keyword");
-        String trangThaiStr = request.getParameter("trangThai");
-        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
-
-        request.setAttribute("list", dotGiamGiaService.search(keyword, trangThai));
+        DotGiamGia dggEdit = dotGiamGiaService.getOne(id);
+        request.setAttribute("dggEdit", dggEdit);
+        loadPaginationData(request);
         request.getRequestDispatcher("/dotgiamgia.jsp").forward(request, response);
     }
 
@@ -78,10 +90,6 @@ public class DotGiamGiaController extends HttpServlet {
     @SneakyThrows
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        DateConverter converter = new DateConverter(null);
-        converter.setPattern("yyyy-MM-dd");
-        ConvertUtils.register(converter, Date.class);
-
         String uri = req.getRequestURI();
         if (uri.contains("/admin/dot-giam-gia/add")) {
             this.addDotGiamGia(req, resp);

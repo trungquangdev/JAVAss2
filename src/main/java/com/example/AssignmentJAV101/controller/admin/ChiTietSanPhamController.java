@@ -15,6 +15,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/chi-tiet-san-pham",
@@ -25,16 +26,10 @@ import java.lang.reflect.InvocationTargetException;
         "/admin/chi-tiet-san-pham/detail"
 })
 public class ChiTietSanPhamController extends HttpServlet {
-    private final ChiTietSanPhamService ctspService = new ChiTietSanPhamService();
+    private final ChiTietSanPhamService chiTietSanPhamService = new ChiTietSanPhamService();
     private final SanPhamService sanPhamService = new SanPhamService();
     private final MauSacService mauSacService = new MauSacService();
     private final KichCoService kichCoService = new KichCoService();
-
-    private void loadComboboxData(HttpServletRequest request) {
-        request.setAttribute("listSP", sanPhamService.getAll());
-        request.setAttribute("listMS", mauSacService.getAll());
-        request.setAttribute("listKC", kichCoService.getAll());
-    }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String uri = request.getRequestURI();
@@ -49,35 +44,13 @@ public class ChiTietSanPhamController extends HttpServlet {
         }
     }
 
-    private void detailChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        ChiTietSanPham ctsp = ctspService.getOne(id);
-        if (ctsp == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy chi tiết sản phẩm");
-            return;
-        }
-        request.setAttribute("detailCtsp", ctsp);
-        request.setAttribute("list", ctspService.getAll());
-        loadComboboxData(request);
-        request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
+    private void loadComboboxData(HttpServletRequest request) {
+        request.setAttribute("listSP", sanPhamService.getAll());
+        request.setAttribute("listMS", mauSacService.getAll());
+        request.setAttribute("listKC", kichCoService.getAll());
     }
 
-    private void editChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        ChiTietSanPham ctsp = ctspService.getOne(id);
-        request.setAttribute("ctspEdit", ctsp);
-        request.setAttribute("list", ctspService.getAll());
-        loadComboboxData(request);
-        request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
-    }
-
-//    private void showChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-//        request.setAttribute("list", ctspService.getAll());
-//        loadComboboxData(request);
-//        request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
-//    }
-
-    private void showChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void loadPaginationData(HttpServletRequest request) {
         String idSPStr = request.getParameter("idSanPham");
         String idMSStr = request.getParameter("idMauSac");
         String idKCStr = request.getParameter("idKichCo");
@@ -88,14 +61,48 @@ public class ChiTietSanPhamController extends HttpServlet {
         Integer idKC = (idKCStr != null && !idKCStr.isEmpty()) ? Integer.valueOf(idKCStr) : null;
         Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
 
-        request.setAttribute("list", ctspService.search(idSP, idMS, idKC, trangThai));
+        int page = 1;
+        int pageSize = 5;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
+        }
+
+        List<ChiTietSanPham> list = chiTietSanPhamService.getPage(page, pageSize, idSP, idMS, idKC, trangThai);
+        long totalItems = chiTietSanPhamService.count(idSP, idMS, idKC, trangThai);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) totalPages = 1;
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
         loadComboboxData(request);
+    }
+
+    private void showChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        loadPaginationData(request);
+        request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
+    }
+
+    private void detailChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        ChiTietSanPham detailCtsp = chiTietSanPhamService.getOne(id);
+        request.setAttribute("detailCtsp", detailCtsp);
+        loadPaginationData(request);
+        request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
+    }
+
+    private void editChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        ChiTietSanPham ctspEdit = chiTietSanPhamService.getOne(id);
+        request.setAttribute("ctspEdit", ctspEdit);
+        loadPaginationData(request);
         request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
     }
 
     private void deleteChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
-        ctspService.delete(id);
+        chiTietSanPhamService.delete(id);
         response.sendRedirect("/admin/chi-tiet-san-pham");
     }
 
@@ -113,20 +120,14 @@ public class ChiTietSanPhamController extends HttpServlet {
     private void updateChiTietSanPham(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         ChiTietSanPham ctsp = new ChiTietSanPham();
         BeanUtils.populate(ctsp, req.getParameterMap());
-        ctsp.setSanPham(sanPhamService.getOne(Integer.valueOf(req.getParameter("idSanPham"))));
-        ctsp.setMauSac(mauSacService.getOne(Integer.valueOf(req.getParameter("idMauSac"))));
-        ctsp.setKichCo(kichCoService.getOne(Integer.valueOf(req.getParameter("idKichCo"))));
-        ctspService.update(ctsp);
+        chiTietSanPhamService.update(ctsp);
         resp.sendRedirect("/admin/chi-tiet-san-pham");
     }
 
     private void addChiTietSanPham(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         ChiTietSanPham ctsp = new ChiTietSanPham();
         BeanUtils.populate(ctsp, req.getParameterMap());
-        ctsp.setSanPham(sanPhamService.getOne(Integer.valueOf(req.getParameter("idSanPham"))));
-        ctsp.setMauSac(mauSacService.getOne(Integer.valueOf(req.getParameter("idMauSac"))));
-        ctsp.setKichCo(kichCoService.getOne(Integer.valueOf(req.getParameter("idKichCo"))));
-        ctspService.add(ctsp);
+        chiTietSanPhamService.add(ctsp);
         resp.sendRedirect("/admin/chi-tiet-san-pham");
     }
 }

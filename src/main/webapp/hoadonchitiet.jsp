@@ -85,6 +85,37 @@
         </tbody>
     </table>
 
+    <form action="${pageContext.request.contextPath}/admin/hoa-don-chi-tiet" method="get" class="row g-3 mb-3">
+        <div class="col-md-4">
+            <select class="form-select" name="idHoaDon">
+                <option value="">-- Lọc theo Hóa Đơn --</option>
+                <c:forEach items="${listHD}" var="hd">
+                    <option value="${hd.id}" ${param.idHoaDon == hd.id ? 'selected' : ''}>${hd.maHoaDon}</option>
+                </c:forEach>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Lọc</button>
+            <a href="${pageContext.request.contextPath}/admin/hoa-don-chi-tiet" class="btn btn-secondary">Làm mới</a>
+        </div>
+    </form>
+
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                <a class="page-link" href="${pageContext.request.contextPath}/admin/hoa-don-chi-tiet?page=${currentPage - 1}&idHoaDon=${param.idHoaDon}">Trước</a>
+            </li>
+            <c:forEach begin="1" end="${totalPages}" var="i">
+                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" href="${pageContext.request.contextPath}/admin/hoa-don-chi-tiet?page=${i}&idHoaDon=${param.idHoaDon}">${i}</a>
+                </li>
+            </c:forEach>
+            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="${pageContext.request.contextPath}/admin/hoa-don-chi-tiet?page=${currentPage + 1}&idHoaDon=${param.idHoaDon}">Sau</a>
+            </li>
+        </ul>
+    </nav>
+
     <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

@@ -2,6 +2,7 @@ package com.example.AssignmentJAV101.repository;
 
 import com.example.AssignmentJAV101.model.HoaDonChiTiet;
 import com.example.AssignmentJAV101.util.Hibernate;
+import lombok.var;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
@@ -44,6 +45,34 @@ public class HoaDonChiTietRepository {
                 session.delete(hoaDonChiTiet);
             }
             transaction.commit();
+        }
+    }public List<HoaDonChiTiet> getPage(int page, int pageSize, Integer idHoaDon) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("from HoaDonChiTiet where 1=1");
+            if (idHoaDon != null) {
+                hql.append(" and hoaDon.id = :idHD");
+            }
+            var query = session.createQuery(hql.toString(), HoaDonChiTiet.class);
+            if (idHoaDon != null) {
+                query.setParameter("idHD", idHoaDon);
+            }
+            query.setFirstResult((page - 1) * pageSize);
+            query.setMaxResults(pageSize);
+            return query.list();
+        }
+    }
+
+    public long count(Integer idHoaDon) {
+        try (Session session = Hibernate.getFactory().openSession()) {
+            StringBuilder hql = new StringBuilder("select count(id) from HoaDonChiTiet where 1=1");
+            if (idHoaDon != null) {
+                hql.append(" and hoaDon.id = :idHD");
+            }
+            var query = session.createQuery(hql.toString(), Long.class);
+            if (idHoaDon != null) {
+                query.setParameter("idHD", idHoaDon);
+            }
+            return query.uniqueResult();
         }
     }
 }

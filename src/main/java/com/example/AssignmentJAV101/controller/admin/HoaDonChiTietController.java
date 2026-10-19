@@ -14,6 +14,7 @@ import org.apache.commons.beanutils.BeanUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/hoa-don-chi-tiet",
@@ -28,53 +29,68 @@ public class HoaDonChiTietController extends HttpServlet {
     private final HoaDonService hoaDonService = new HoaDonService();
     private final ChiTietSanPhamService chiTietSanPhamService = new ChiTietSanPhamService();
 
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String uri = request.getRequestURI();
+        if (uri.contains("/admin/hoa-don-chi-tiet/delete")) {
+            this.deleteHoaDonChiTiet(request, response);
+        } else if (uri.contains("/admin/hoa-don-chi-tiet/edit")) {
+            this.editHoaDonChiTiet(request, response);
+        } else if (uri.contains("/admin/hoa-don-chi-tiet/detail")) {
+            this.detailHoaDonChiTiet(request, response);
+        } else if (uri.contains("/admin/hoa-don-chi-tiet")) {
+            this.showHoaDonChiTiet(request, response);
+        }
+    }
+
     private void loadComboboxData(HttpServletRequest request) {
         request.setAttribute("listHD", hoaDonService.getAll());
         request.setAttribute("listCTSP", chiTietSanPhamService.getAll());
     }
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        String uri = request.getRequestURI();
-        if (uri.contains("/admin/hoa-don-chi-tiet/delete")) {
-            this.deleteHdct(request, response);
-        } else if (uri.contains("/admin/hoa-don-chi-tiet/edit")) {
-            this.editHdct(request, response);
-        } else if (uri.contains("/admin/hoa-don-chi-tiet/detail")) {
-            this.detailHdct(request, response);
-        } else if (uri.contains("/admin/hoa-don-chi-tiet")) {
-            this.showHdct(request, response);
+    private void loadPaginationData(HttpServletRequest request) {
+        String idHDStr = request.getParameter("idHoaDon");
+        Integer idHoaDon = (idHDStr != null && !idHDStr.isEmpty()) ? Integer.valueOf(idHDStr) : null;
+
+        int page = 1;
+        int pageSize = 5;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
         }
+
+        List<HoaDonChiTiet> list = hoaDonChiTietService.getPage(page, pageSize, idHoaDon);
+        long totalItems = hoaDonChiTietService.count(idHoaDon);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) totalPages = 1;
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        loadComboboxData(request);
     }
 
-    private void detailHdct(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    private void showHoaDonChiTiet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        loadPaginationData(request);
+        request.getRequestDispatcher("/hoadonchitiet.jsp").forward(request, response);
+    }
+
+    private void detailHoaDonChiTiet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
-        HoaDonChiTiet hdct = hoaDonChiTietService.getOne(id);
-        if (hdct == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy hóa đơn chi tiết");
-            return;
-        }
-        request.setAttribute("detailHdct", hdct);
-        request.setAttribute("list", hoaDonChiTietService.getAll());
-        loadComboboxData(request);
+        HoaDonChiTiet detailHdct = hoaDonChiTietService.getOne(id);
+        request.setAttribute("detailHdct", detailHdct);
+        loadPaginationData(request);
         request.getRequestDispatcher("/hoadonchitiet.jsp").forward(request, response);
     }
 
-    private void editHdct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void editHoaDonChiTiet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
-        HoaDonChiTiet hdct = hoaDonChiTietService.getOne(id);
-        request.setAttribute("hdctEdit", hdct);
-        request.setAttribute("list", hoaDonChiTietService.getAll());
-        loadComboboxData(request);
+        HoaDonChiTiet hdctEdit = hoaDonChiTietService.getOne(id);
+        request.setAttribute("hdctEdit", hdctEdit);
+        loadPaginationData(request);
         request.getRequestDispatcher("/hoadonchitiet.jsp").forward(request, response);
     }
 
-    private void showHdct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", hoaDonChiTietService.getAll());
-        loadComboboxData(request);
-        request.getRequestDispatcher("/hoadonchitiet.jsp").forward(request, response);
-    }
-
-    private void deleteHdct(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void deleteHoaDonChiTiet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
         hoaDonChiTietService.delete(id);
         response.sendRedirect("/admin/hoa-don-chi-tiet");
@@ -85,26 +101,22 @@ public class HoaDonChiTietController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String uri = req.getRequestURI();
         if (uri.contains("/admin/hoa-don-chi-tiet/add")) {
-            this.addHdct(req, resp);
+            this.addHoaDonChiTiet(req, resp);
         } else if (uri.contains("/admin/hoa-don-chi-tiet/update")) {
-            this.updateHdct(req, resp);
+            this.updateHoaDonChiTiet(req, resp);
         }
     }
 
-    private void updateHdct(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
+    private void updateHoaDonChiTiet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         HoaDonChiTiet hdct = new HoaDonChiTiet();
         BeanUtils.populate(hdct, req.getParameterMap());
-        hdct.setHoaDon(hoaDonService.getOne(Integer.valueOf(req.getParameter("idHoaDon"))));
-        hdct.setChiTietSanPham(chiTietSanPhamService.getOne(Integer.valueOf(req.getParameter("idChiTietSanPham"))));
         hoaDonChiTietService.update(hdct);
         resp.sendRedirect("/admin/hoa-don-chi-tiet");
     }
 
-    private void addHdct(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
+    private void addHoaDonChiTiet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         HoaDonChiTiet hdct = new HoaDonChiTiet();
         BeanUtils.populate(hdct, req.getParameterMap());
-        hdct.setHoaDon(hoaDonService.getOne(Integer.valueOf(req.getParameter("idHoaDon"))));
-        hdct.setChiTietSanPham(chiTietSanPhamService.getOne(Integer.valueOf(req.getParameter("idChiTietSanPham"))));
         hoaDonChiTietService.add(hdct);
         resp.sendRedirect("/admin/hoa-don-chi-tiet");
     }

@@ -31,5 +31,11 @@ public class KhachHangService {
     public List<KhachHang> search(String keyword, Integer trangThai) {
         return khachHangRepository.search(keyword, trangThai);
     }
+    public List<KhachHang> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        return khachHangRepository.getPage(page, pageSize, keyword, trangThai);
+    }
 
+    public long count(String keyword, Integer trangThai) {
+        return khachHangRepository.count(keyword, trangThai);
+    }
 }

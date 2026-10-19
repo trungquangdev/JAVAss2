@@ -1,15 +1,18 @@
 package com.example.AssignmentJAV101.controller.admin;
 
-import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-
 import com.example.AssignmentJAV101.model.NhanVien;
 import com.example.AssignmentJAV101.service.NhanVienService;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/nhan-vien",
@@ -18,9 +21,7 @@ import org.apache.commons.beanutils.BeanUtils;
         "/admin/nhan-vien/edit",
         "/admin/nhan-vien/delete",
         "/admin/nhan-vien/detail"
-}
-
-)
+})
 public class NhanVienController extends HttpServlet {
     private final NhanVienService nhanVienService = new NhanVienService();
 
@@ -37,51 +38,54 @@ public class NhanVienController extends HttpServlet {
         }
     }
 
-    private void detailNhanVien(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        // Lấy ID từ URL
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        // Tìm chi tiết sản phẩm theo ID
-        NhanVien nv = nhanVienService.getOne(id);
-        // Kiểm tra sản phẩm có tồn tại không
-        if (nv == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                    "Không tìm thấy chi tiết sản phẩm");
-            return;
-        }
-        // Gửi dữ liệu sang JSP
-        request.setAttribute("detailNv", nv);
-        request.setAttribute("list", nhanVienService.getAll());
-        // Hiển thị trang chi tiếtindex
-        request.getRequestDispatcher("/nhanvien.jsp").forward(request, response);
-    }
-
-
-    //edit
-    private void editNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        NhanVien nv = nhanVienService.getOne(id);
-        request.setAttribute("nvEdit", nv);
-        request.setAttribute("list", nhanVienService.getAll());
-        request.getRequestDispatcher("/nhanvien.jsp").forward(request, response);
-    }
-
-    //show
-    private void showNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    private void loadPaginationData(HttpServletRequest request) {
         String keyword = request.getParameter("keyword");
         String trangThaiStr = request.getParameter("trangThai");
         Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
 
-        request.setAttribute("list", nhanVienService.search(keyword, trangThai));
+        int page = 1;
+        int pageSize = 5;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
+        }
+
+        List<NhanVien> list = nhanVienService.getPage(page, pageSize, keyword, trangThai);
+        long totalItems = nhanVienService.count(keyword, trangThai);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) totalPages = 1;
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+    }
+
+    private void showNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        loadPaginationData(request);
         request.getRequestDispatcher("/nhanvien.jsp").forward(request, response);
     }
 
-    //remove
+    private void detailNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        NhanVien detailNv = nhanVienService.getOne(id);
+        request.setAttribute("detailNv", detailNv);
+        loadPaginationData(request);
+        request.getRequestDispatcher("/nhanvien.jsp").forward(request, response);
+    }
+
+    private void editNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        NhanVien nvEdit = nhanVienService.getOne(id);
+        request.setAttribute("nvEdit", nvEdit);
+        loadPaginationData(request);
+        request.getRequestDispatcher("/nhanvien.jsp").forward(request, response);
+    }
+
     private void deleteNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
         nhanVienService.delete(id);
         response.sendRedirect("/admin/nhan-vien");
     }
-
 
     @SneakyThrows
     @Override
@@ -94,7 +98,6 @@ public class NhanVienController extends HttpServlet {
         }
     }
 
-    //edit
     private void updateNhanVien(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         NhanVien nv = new NhanVien();
         BeanUtils.populate(nv, req.getParameterMap());

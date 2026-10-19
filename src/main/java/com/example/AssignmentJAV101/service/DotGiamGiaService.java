@@ -29,5 +29,10 @@ public class DotGiamGiaService {
     }
     public List<DotGiamGia> search(String keyword, Integer trangThai) {
         return dotGiamGiaRepository.search(keyword, trangThai);
+    }public List<DotGiamGia> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        return dotGiamGiaRepository.getPage(page, pageSize, keyword, trangThai);
+    }
+    public long count(String keyword, Integer trangThai) {
+        return dotGiamGiaRepository.count(keyword, trangThai);
     }
 }

@@ -29,5 +29,10 @@ public class PhieuGiamGiaService {
     }
     public List<PhieuGiamGia> search(String keyword, Integer trangThai) {
         return phieuGiamGiaRepository.search(keyword, trangThai);
+    }public List<PhieuGiamGia> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        return phieuGiamGiaRepository.getPage(page, pageSize, keyword, trangThai);
+    }
+    public long count(String keyword, Integer trangThai) {
+        return phieuGiamGiaRepository.count(keyword, trangThai);
     }
 }

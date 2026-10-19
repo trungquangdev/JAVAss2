@@ -12,13 +12,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.converters.DateConverter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/hoa-don",
@@ -34,12 +31,6 @@ public class HoaDonController extends HttpServlet {
     private final NhanVienService nhanVienService = new NhanVienService();
     private final PhieuGiamGiaService phieuGiamGiaService = new PhieuGiamGiaService();
 
-    private void loadComboboxData(HttpServletRequest request) {
-        request.setAttribute("listKH", khachHangService.getAll());
-        request.setAttribute("listNV", nhanVienService.getAll());
-        request.setAttribute("listPGG", phieuGiamGiaService.getAll());
-    }
-
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String uri = request.getRequestURI();
         if (uri.contains("/admin/hoa-don/delete")) {
@@ -53,31 +44,53 @@ public class HoaDonController extends HttpServlet {
         }
     }
 
-    private void detailHoaDon(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        HoaDon hd = hoaDonService.getOne(id);
-        if (hd == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy hóa đơn");
-            return;
+    private void loadComboboxData(HttpServletRequest request) {
+        request.setAttribute("listKH", khachHangService.getAll());
+        request.setAttribute("listNV", nhanVienService.getAll());
+        request.setAttribute("listPGG", phieuGiamGiaService.getAll());
+    }
+
+    private void loadPaginationData(HttpServletRequest request) {
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        int page = 1;
+        int pageSize = 5;
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
         }
-        request.setAttribute("detailHd", hd);
-        request.setAttribute("list", hoaDonService.getAll());
+
+        List<HoaDon> list = hoaDonService.getPage(page, pageSize, keyword, trangThai);
+        long totalItems = hoaDonService.count(keyword, trangThai);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) totalPages = 1;
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
         loadComboboxData(request);
+    }
+
+    private void showHoaDon(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        loadPaginationData(request);
+        request.getRequestDispatcher("/hoadon.jsp").forward(request, response);
+    }
+
+    private void detailHoaDon(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Integer id = Integer.valueOf(request.getParameter("id"));
+        HoaDon detailHd = hoaDonService.getOne(id);
+        request.setAttribute("detailHd", detailHd);
+        loadPaginationData(request);
         request.getRequestDispatcher("/hoadon.jsp").forward(request, response);
     }
 
     private void editHoaDon(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
-        HoaDon hd = hoaDonService.getOne(id);
-        request.setAttribute("hdEdit", hd);
-        request.setAttribute("list", hoaDonService.getAll());
-        loadComboboxData(request);
-        request.getRequestDispatcher("/hoadon.jsp").forward(request, response);
-    }
-
-    private void showHoaDon(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", hoaDonService.getAll());
-        loadComboboxData(request);
+        HoaDon hdEdit = hoaDonService.getOne(id);
+        request.setAttribute("hdEdit", hdEdit);
+        loadPaginationData(request);
         request.getRequestDispatcher("/hoadon.jsp").forward(request, response);
     }
 
@@ -90,10 +103,6 @@ public class HoaDonController extends HttpServlet {
     @SneakyThrows
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        DateConverter converter = new DateConverter(null);
-        converter.setPattern("yyyy-MM-dd");
-        ConvertUtils.register(converter, Date.class);
-
         String uri = req.getRequestURI();
         if (uri.contains("/admin/hoa-don/add")) {
             this.addHoaDon(req, resp);
@@ -105,11 +114,6 @@ public class HoaDonController extends HttpServlet {
     private void updateHoaDon(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         HoaDon hd = new HoaDon();
         BeanUtils.populate(hd, req.getParameterMap());
-        hd.setKhachHang(khachHangService.getOne(Integer.valueOf(req.getParameter("idKhachHang"))));
-        hd.setNhanVien(nhanVienService.getOne(Integer.valueOf(req.getParameter("idNhanVien"))));
-        if (req.getParameter("idPhieuGiamGia") != null && !req.getParameter("idPhieuGiamGia").isEmpty()) {
-            hd.setPhieuGiamGia(phieuGiamGiaService.getOne(Integer.valueOf(req.getParameter("idPhieuGiamGia"))));
-        }
         hoaDonService.update(hd);
         resp.sendRedirect("/admin/hoa-don");
     }
@@ -117,11 +121,6 @@ public class HoaDonController extends HttpServlet {
     private void addHoaDon(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException, InvocationTargetException, IllegalAccessException {
         HoaDon hd = new HoaDon();
         BeanUtils.populate(hd, req.getParameterMap());
-        hd.setKhachHang(khachHangService.getOne(Integer.valueOf(req.getParameter("idKhachHang"))));
-        hd.setNhanVien(nhanVienService.getOne(Integer.valueOf(req.getParameter("idNhanVien"))));
-        if (req.getParameter("idPhieuGiamGia") != null && !req.getParameter("idPhieuGiamGia").isEmpty()) {
-            hd.setPhieuGiamGia(phieuGiamGiaService.getOne(Integer.valueOf(req.getParameter("idPhieuGiamGia"))));
-        }
         hoaDonService.add(hd);
         resp.sendRedirect("/admin/hoa-don");
     }

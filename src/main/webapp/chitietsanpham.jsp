@@ -122,6 +122,22 @@
         </tbody>
     </table>
 
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                <a class="page-link" href="${pageContext.request.contextPath}/admin/chi-tiet-san-pham?page=${currentPage - 1}&idSanPham=${param.idSanPham}&idMauSac=${param.idMauSac}&idKichCo=${param.idKichCo}&trangThai=${param.trangThai}">Trước</a>
+            </li>
+            <c:forEach begin="1" end="${totalPages}" var="i">
+                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" href="${pageContext.request.contextPath}/admin/chi-tiet-san-pham?page=${i}&idSanPham=${param.idSanPham}&idMauSac=${param.idMauSac}&idKichCo=${param.idKichCo}&trangThai=${param.trangThai}">${i}</a>
+                </li>
+            </c:forEach>
+            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="${pageContext.request.contextPath}/admin/chi-tiet-san-pham?page=${currentPage + 1}&idSanPham=${param.idSanPham}&idMauSac=${param.idMauSac}&idKichCo=${param.idKichCo}&trangThai=${param.trangThai}">Sau</a>
+            </li>
+        </ul>
+    </nav>
+
     <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">

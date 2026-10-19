@@ -26,5 +26,10 @@ public class HoaDonChiTietService {
 
     public void delete(Integer id) {
         hoaDonChiTietRepository.delete(id);
+    }public List<HoaDonChiTiet> getPage(int page, int pageSize, Integer idHoaDon) {
+        return hoaDonChiTietRepository.getPage(page, pageSize, idHoaDon);
+    }
+    public long count(Integer idHoaDon) {
+        return hoaDonChiTietRepository.count(idHoaDon);
     }
 }

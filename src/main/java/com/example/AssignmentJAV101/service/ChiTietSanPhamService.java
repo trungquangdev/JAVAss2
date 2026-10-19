@@ -29,5 +29,10 @@ public class ChiTietSanPhamService {
     }
     public List<ChiTietSanPham> search(Integer idSanPham, Integer idMauSac, Integer idKichCo, Integer trangThai) {
         return chiTietSanPhamRepository.search(idSanPham, idMauSac, idKichCo, trangThai);
+    }public List<ChiTietSanPham> getPage(int page, int pageSize, Integer idSP, Integer idMS, Integer idKC, Integer tt) {
+        return chiTietSanPhamRepository.getPage(page, pageSize, idSP, idMS, idKC, tt);
+    }
+    public long count(Integer idSP, Integer idMS, Integer idKC, Integer tt) {
+        return chiTietSanPhamRepository.count(idSP, idMS, idKC, tt);
     }
 }

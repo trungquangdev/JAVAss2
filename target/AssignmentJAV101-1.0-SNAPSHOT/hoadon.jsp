@@ -21,29 +21,40 @@
     <div class="card shadow-sm mb-4 p-3">
         <h4>Thêm Hóa Đơn</h4>
         <form action="${pageContext.request.contextPath}/admin/hoa-don/add" method="post" class="row g-3">
-            <div class="col-md-3"><input type="text" class="form-control" name="maHoaDon" placeholder="Mã HĐ" required></div>
+            <div class="col-md-3"><input type="text" class="form-control" name="maHoaDon" placeholder="Mã HĐ" required>
+            </div>
             <div class="col-md-3">
                 <select class="form-select" name="idKhachHang" required>
                     <option value="">Chọn khách hàng</option>
-                    <c:forEach items="${listKH}" var="kh"><option value="${kh.id}">${kh.ten}</option></c:forEach>
+                    <c:forEach items="${listKH}" var="kh">
+                        <option value="${kh.id}">${kh.ten}</option>
+                    </c:forEach>
                 </select>
             </div>
             <div class="col-md-3">
                 <select class="form-select" name="idNhanVien" required>
                     <option value="">Chọn nhân viên</option>
-                    <c:forEach items="${listNV}" var="nv"><option value="${nv.id}">${nv.ten}</option></c:forEach>
+                    <c:forEach items="${listNV}" var="nv">
+                        <option value="${nv.id}">${nv.ten}</option>
+                    </c:forEach>
                 </select>
             </div>
             <div class="col-md-3">
                 <select class="form-select" name="idPhieuGiamGia">
                     <option value="">-- Chọn phiếu giảm giá --</option>
-                    <c:forEach items="${listPGG}" var="pgg"><option value="${pgg.id}">${pgg.tenPhieu}</option></c:forEach>
+                    <c:forEach items="${listPGG}" var="pgg">
+                        <option value="${pgg.id}">${pgg.tenPhieu}</option>
+                    </c:forEach>
                 </select>
             </div>
-            <div class="col-md-3"><input type="number" step="0.01" class="form-control" name="tongTien" placeholder="Tổng tiền" required></div>
+            <div class="col-md-3"><input type="number" step="0.01" class="form-control" name="tongTien"
+                                         placeholder="Tổng tiền" required></div>
             <div class="col-md-3"><input type="date" class="form-control" name="ngayTao" required></div>
-            <div class="col-md-2"><input type="number" class="form-control" name="trangThai" placeholder="Trạng thái" value="1"></div>
-            <div class="col-md-2"><button type="submit" class="btn btn-success w-100">Thêm</button></div>
+            <div class="col-md-2"><input type="number" class="form-control" name="trangThai" placeholder="Trạng thái"
+                                         value="1"></div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-success w-100">Thêm</button>
+            </div>
         </form>
     </div>
 
@@ -52,7 +63,8 @@
             <h4>Sửa Hóa Đơn</h4>
             <form action="${pageContext.request.contextPath}/admin/hoa-don/update" method="post" class="row g-3">
                 <input type="hidden" name="id" value="${hdEdit.id}">
-                <div class="col-md-3"><input type="text" class="form-control" name="maHoaDon" value="${hdEdit.maHoaDon}" required></div>
+                <div class="col-md-3"><input type="text" class="form-control" name="maHoaDon" value="${hdEdit.maHoaDon}"
+                                             required></div>
                 <div class="col-md-3">
                     <select class="form-select" name="idKhachHang">
                         <c:forEach items="${listKH}" var="kh">
@@ -75,33 +87,100 @@
                         </c:forEach>
                     </select>
                 </div>
-                <div class="col-md-3"><input type="number" step="0.01" class="form-control" name="tongTien" value="${hdEdit.tongTien}" required></div>
+                <div class="col-md-3"><input type="number" step="0.01" class="form-control" name="tongTien"
+                                             value="${hdEdit.tongTien}" required></div>
                 <fmt:formatDate value="${hdEdit.ngayTao}" pattern="yyyy-MM-dd" var="ngayT"/>
-                <div class="col-md-3"><input type="date" class="form-control" name="ngayTao" value="${ngayT}" required></div>
-                <div class="col-md-2"><input type="number" class="form-control" name="trangThai" value="${hdEdit.trangThai}"></div>
+                <div class="col-md-3"><input type="date" class="form-control" name="ngayTao" value="${ngayT}" required>
+                </div>
+                <div class="col-md-2"><input type="number" class="form-control" name="trangThai"
+                                             value="${hdEdit.trangThai}"></div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-warning w-100">Lưu</button>
-                    <a href="${pageContext.request.contextPath}/admin/hoa-don" class="btn btn-secondary w-100 mt-1">Hủy</a>
+                    <a href="${pageContext.request.contextPath}/admin/hoa-don"
+                       class="btn btn-secondary w-100 mt-1">Hủy</a>
                 </div>
             </form>
         </div>
     </c:if>
 
     <table class="table table-bordered table-striped">
-        <thead class="table-dark"><tr><th>Mã HĐ</th><th>Khách hàng</th><th>Nhân viên</th><th>Tổng tiền</th><th>Ngày tạo</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <thead class="table-dark">
+        <tr>
+            <th>Mã HĐ</th>
+            <th>Khách hàng</th>
+            <th>Nhân viên</th>
+            <th>Tổng tiền</th>
+            <th>Ngày tạo</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
         <tbody>
         <c:forEach items="${list}" var="hd">
             <tr>
-                <td>${hd.maHoaDon}</td><td>${hd.khachHang.ten}</td><td>${hd.nhanVien.ten}</td><td>${hd.tongTien}</td><td><fmt:formatDate value="${hd.ngayTao}" pattern="yyyy-MM-dd"/></td><td>${hd.trangThai}</td>
+                <td>${hd.maHoaDon}</td>
+                <td>${hd.khachHang.ten}</td>
+                <td>${hd.nhanVien.ten}</td>
+                <td>${hd.tongTien}</td>
+                <td><fmt:formatDate value="${hd.ngayTao}" pattern="yyyy-MM-dd"/></td>
                 <td>
-                    <a href="${pageContext.request.contextPath}/admin/hoa-don/edit?id=${hd.id}" class="btn btn-sm btn-warning">Sửa</a>
-                    <a href="${pageContext.request.contextPath}/admin/hoa-don/delete?id=${hd.id}" class="btn btn-sm btn-danger" onclick="return confirm('Xóa?')">Xóa</a>
-                    <a href="${pageContext.request.contextPath}/admin/hoa-don/detail?id=${hd.id}" class="btn btn-sm btn-info text-white">Detail</a>
+                    <c:choose>
+                        <c:when test="${hd.trangThai == 1}">
+                            <span class="badge bg-success">Hoạt động</span>
+                        </c:when>
+                        <c:otherwise>
+                            <span class="badge bg-danger">Ngừng hoạt động</span>
+                        </c:otherwise>
+                    </c:choose></td>
+                <td>
+                    <a href="${pageContext.request.contextPath}/admin/hoa-don/edit?id=${hd.id}"
+                       class="btn btn-sm btn-warning">Sửa</a>
+                    <a href="${pageContext.request.contextPath}/admin/hoa-don/delete?id=${hd.id}"
+                       class="btn btn-sm btn-danger" onclick="return confirm('Xóa?')">Xóa</a>
+                    <a href="${pageContext.request.contextPath}/admin/hoa-don/detail?id=${hd.id}"
+                       class="btn btn-sm btn-info text-white">Detail</a>
                 </td>
             </tr>
         </c:forEach>
         </tbody>
     </table>
+
+    <form action="${pageContext.request.contextPath}/admin/hoa-don" method="get" class="row g-3 mb-3">
+        <div class="col-md-5">
+            <input type="text" class="form-control" name="keyword" value="${param.keyword}"
+                   placeholder="Tìm theo mã HĐ, tên khách hàng, nhân viên...">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="trangThai">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="1" ${param.trangThai == '1' ? 'selected' : ''}>Hoạt động</option>
+                <option value="0" ${param.trangThai == '0' ? 'selected' : ''}>Ngừng</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            <a href="${pageContext.request.contextPath}/admin/hoa-don" class="btn btn-secondary">Làm mới</a>
+        </div>
+    </form>
+
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                <a class="page-link"
+                   href="${pageContext.request.contextPath}/admin/hoa-don?page=${currentPage - 1}&keyword=${param.keyword}&trangThai=${param.trangThai}">Trước</a>
+            </li>
+            <c:forEach begin="1" end="${totalPages}" var="i">
+                <li class="page-item ${currentPage == i ? 'active' : ''}">
+                    <a class="page-link"
+                       href="${pageContext.request.contextPath}/admin/hoa-don?page=${i}&keyword=${param.keyword}&trangThai=${param.trangThai}">${i}</a>
+                </li>
+            </c:forEach>
+            <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                <a class="page-link"
+                   href="${pageContext.request.contextPath}/admin/hoa-don?page=${currentPage + 1}&keyword=${param.keyword}&trangThai=${param.trangThai}">Sau</a>
+            </li>
+        </ul>
+    </nav>
 
     <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -116,14 +195,16 @@
                     <p><strong>Nhân viên:</strong> <span id="modalNV"></span></p>
                     <p><strong>Tổng tiền:</strong> <span id="modalTien"></span></p>
                 </div>
-                <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                </div>
             </div>
         </div>
     </div>
 
     <c:if test="${not empty detailHd}">
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 document.getElementById("modalMa").innerText = "${detailHd.maHoaDon}";
                 document.getElementById("modalKH").innerText = "${detailHd.khachHang.ten}";
                 document.getElementById("modalNV").innerText = "${detailHd.nhanVien.ten}";

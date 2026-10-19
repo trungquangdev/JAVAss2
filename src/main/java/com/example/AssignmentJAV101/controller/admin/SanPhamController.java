@@ -8,11 +8,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
-import lombok.var;
 import org.apache.commons.beanutils.BeanUtils;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 @WebServlet(urlPatterns = {
         "/admin/san-pham",
@@ -38,15 +38,48 @@ public class SanPhamController extends HttpServlet {
         }
     }
 
-    private void detailSanPham(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    // Hàm dùng chung để load phân trang, tìm kiếm, lọc (tránh lặp code và mất phân trang)
+    private void loadPaginationData(HttpServletRequest request) {
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        int page = 1;
+        int pageSize = 5; // Số bản ghi trên 1 trang
+        String pageStr = request.getParameter("page");
+        if (pageStr != null && !pageStr.isEmpty()) {
+            page = Integer.parseInt(pageStr);
+        }
+
+        List<SanPham> list = sanPhamService.getPage(page, pageSize, keyword, trangThai);
+        long totalItems = sanPhamService.count(keyword, trangThai);
+        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+        if (totalPages == 0) totalPages = 1;
+
+        request.setAttribute("list", list);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+    }
+
+    private void showSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        loadPaginationData(request);
+        request.getRequestDispatcher("/sanpham.jsp").forward(request, response);
+    }
+
+    private void detailSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         Integer id = Integer.valueOf(request.getParameter("id"));
-        SanPham sp = sanPhamService.getOne(id);
-        if (sp == null) {
+        SanPham detail = sanPhamService.getOne(id);
+        if (detail == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy sản phẩm");
             return;
         }
-        request.setAttribute("detailSp", sp);
-        request.setAttribute("list", sanPhamService.getAll());
+
+        // Đẩy biến detail ra để JSP bật Popup Modal
+        request.setAttribute("detail", detail);
+
+        // Giữ lại phân trang và danh sách hiện tại
+        loadPaginationData(request);
+
         request.getRequestDispatcher("/sanpham.jsp").forward(request, response);
     }
 
@@ -54,22 +87,10 @@ public class SanPhamController extends HttpServlet {
         Integer id = Integer.valueOf(request.getParameter("id"));
         SanPham sp = sanPhamService.getOne(id);
         request.setAttribute("spEdit", sp);
-        request.setAttribute("list", sanPhamService.getAll());
-        request.getRequestDispatcher("/sanpham.jsp").forward(request, response);
-    }
 
-    private void showSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String keyword = request.getParameter("keyword");
-        String trangThaiStr = request.getParameter("trangThai");
+        // Giữ lại phân trang và danh sách hiện tại khi ấn Sửa
+        loadPaginationData(request);
 
-        Integer trangThai = null;
-        if (trangThaiStr != null && !trangThaiStr.isEmpty()) {
-            trangThai = Integer.valueOf(trangThaiStr);
-        }
-
-        // Gọi hàm search thay vì getAll thông thường
-        var list = sanPhamService.search(keyword, trangThai);
-        request.setAttribute("list", list);
         request.getRequestDispatcher("/sanpham.jsp").forward(request, response);
     }
 

@@ -30,6 +30,12 @@ public class SanPhamService {
 
     public List<SanPham> search(String keyword, Integer trangThai) {
         return sanPhamRepository.search(keyword, trangThai);
+    }public List<SanPham> getPage(int page, int pageSize, String keyword, Integer trangThai) {
+        return sanPhamRepository.getPage(page, pageSize, keyword, trangThai);
+    }
+
+    public long count(String keyword, Integer trangThai) {
+        return sanPhamRepository.count(keyword, trangThai);
     }
 
 }
