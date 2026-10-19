@@ -20,11 +20,14 @@ public class HoaDonChiTiet {
     @Column(name = "Id")
     private Integer id;
 
-    @Column(name = "IdHoaDon", nullable = false)
-    private Integer idHoaDon;
 
-    @Column(name = "IdChiTietSanPham", nullable = false)
-    private Integer idChiTietSanPham;
+    @ManyToOne
+    @JoinColumn(name = "IdHoaDon")
+    private HoaDon hoaDon;
+
+    @ManyToOne
+    @JoinColumn(name = "IdChiTietSanPham")
+    private ChiTietSanPham chiTietSanPham;
 
     @Column(name = "SoLuong", nullable = false)
     private Integer soLuong;

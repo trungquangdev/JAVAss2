@@ -21,14 +21,17 @@ public class HoaDon {
     @Column(name = "Id")
     private Integer id;
 
-    @Column(name = "IdKhachHang")
-    private Integer idKhachHang;
+    @ManyToOne
+    @JoinColumn(name = "IdKhachHang")
+    private KhachHang khachHang;
 
-    @Column(name = "IdNhanVien", nullable = false)
-    private Integer idNhanVien;
+    @ManyToOne
+    @JoinColumn(name = "IdNhanVien")
+    private NhanVien nhanVien;
 
-    @Column(name = "IdPhieuGiamGia")
-    private Integer idPhieuGiamGia;
+    @ManyToOne
+    @JoinColumn(name = "IdPhieuGiamGia")
+    private PhieuGiamGia phieuGiamGia;
 
     @Column(name = "MaHoaDon", nullable = false, unique = true, length = 20)
     private String maHoaDon;
