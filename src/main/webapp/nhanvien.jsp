@@ -8,6 +8,25 @@
 <body>
 <form action="/admin/nhan-vien/add" method="post">
 
+    <h2 class="mb-4 text-primary fw-bold"><i class="fas fa-box-open me-2"></i>Quản Lý Nhân Viên</h2>
+
+    <form action="${pageContext.request.contextPath}/admin/nhan-vien" method="get" class="row g-3 mb-3">
+        <div class="col-md-5">
+            <input type="text" class="form-control" name="keyword" value="${param.keyword}" placeholder="Tìm kiếm mã, tên, email, sđt, chức vụ...">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="trangThai">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="1" ${param.trangThai == '1' ? 'selected' : ''}>Hoạt động</option>
+                <option value="0" ${param.trangThai == '0' ? 'selected' : ''}>Ngừng</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            <a href="${pageContext.request.contextPath}/admin/nhan-vien" class="btn btn-secondary">Làm mới</a>
+        </div>
+    </form>
+
     <input type="text" name="ma" placeholder="Mã">
     <input type="text" name="ten" placeholder="Tên">
     <input type="email" name="email" placeholder="Email">

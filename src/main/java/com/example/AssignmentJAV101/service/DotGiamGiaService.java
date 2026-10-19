@@ -27,5 +27,7 @@ public class DotGiamGiaService {
     public void delete(Integer id) {
         dotGiamGiaRepository.delete(id);
     }
-
+    public List<DotGiamGia> search(String keyword, Integer trangThai) {
+        return dotGiamGiaRepository.search(keyword, trangThai);
+    }
 }

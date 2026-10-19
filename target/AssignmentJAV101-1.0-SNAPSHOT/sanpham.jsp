@@ -13,6 +13,24 @@
 <div class="container py-4">
     <h2 class="mb-4 text-primary fw-bold"><i class="fas fa-box-open me-2"></i>Quản Lý Sản Phẩm</h2>
 
+    <!-- FORM TÌM KIẾM VÀ LỌC -->
+    <form action="${pageContext.request.contextPath}/admin/san-pham" method="get" class="row g-3 mb-3">
+        <div class="col-md-5">
+            <input type="text" class="form-control" name="keyword" value="${param.keyword}" placeholder="Tìm kiếm theo mã, tên, mô tả...">
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" name="trangThai">
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="1" ${param.trangThai == '1' ? 'selected' : ''}>Hoạt động</option>
+                <option value="0" ${param.trangThai == '0' ? 'selected' : ''}>Ngừng kinh doanh</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-1"></i> Tìm kiếm</button>
+            <a href="${pageContext.request.contextPath}/admin/san-pham" class="btn btn-secondary"><i class="fas fa-redo me-1"></i> Làm mới</a>
+        </div>
+    </form>
+
     <!-- FORM THÊM / SỬA SẢN PHẨM -->
     <div class="card shadow-sm mb-4">
         <div class="card-header bg-primary text-white">

@@ -27,5 +27,7 @@ public class ChiTietSanPhamService {
     public void delete(Integer id) {
         chiTietSanPhamRepository.delete(id);
     }
-
+    public List<ChiTietSanPham> search(Integer idSanPham, Integer idMauSac, Integer idKichCo, Integer trangThai) {
+        return chiTietSanPhamRepository.search(idSanPham, idMauSac, idKichCo, trangThai);
+    }
 }

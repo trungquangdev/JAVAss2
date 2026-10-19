@@ -61,7 +61,11 @@ public class PhieuGiamGiaController extends HttpServlet {
     }
 
     private void showPhieuGiamGia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", phieuGiamGiaService.getAll());
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        request.setAttribute("list", phieuGiamGiaService.search(keyword, trangThai));
         request.getRequestDispatcher("/phieugiamgia.jsp").forward(request, response);
     }
 

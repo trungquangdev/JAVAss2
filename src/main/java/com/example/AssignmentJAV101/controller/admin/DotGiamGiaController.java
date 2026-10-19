@@ -61,7 +61,11 @@ public class DotGiamGiaController extends HttpServlet {
     }
 
     private void showDotGiamGia(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", dotGiamGiaService.getAll());
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        request.setAttribute("list", dotGiamGiaService.search(keyword, trangThai));
         request.getRequestDispatcher("/dotgiamgia.jsp").forward(request, response);
     }
 

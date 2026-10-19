@@ -63,9 +63,13 @@ public class KhachHangController extends HttpServlet {
         req.getRequestDispatcher("/khachhang.jsp").forward(req,resp);
     }
 
-    private void showKhachHang(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-       req.setAttribute("list",khachHangService.getAll());
-       req.getRequestDispatcher("/khachhang.jsp").forward(req,resp);
+    private void showKhachHang(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        request.setAttribute("list", khachHangService.search(keyword, trangThai));
+        request.getRequestDispatcher("/khachhang.jsp").forward(request, response);
     }
 
     private void deleteKhachHang(HttpServletRequest req, HttpServletResponse resp) throws IOException {

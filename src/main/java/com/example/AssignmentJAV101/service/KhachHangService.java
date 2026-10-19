@@ -28,4 +28,8 @@ public class KhachHangService {
         khachHangRepository.delete(id);
     }
 
+    public List<KhachHang> search(String keyword, Integer trangThai) {
+        return khachHangRepository.search(keyword, trangThai);
+    }
+
 }

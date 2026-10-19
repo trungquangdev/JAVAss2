@@ -27,4 +27,7 @@ public class NhanVienService {
     public void delete(Integer id){
         nhanVienRepository.delete(id);
     }
+    public List<NhanVien> search(String keyword, Integer trangThai) {
+        return nhanVienRepository.search(keyword, trangThai);
+    }
 }

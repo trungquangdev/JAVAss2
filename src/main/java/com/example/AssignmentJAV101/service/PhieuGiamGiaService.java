@@ -27,5 +27,7 @@ public class PhieuGiamGiaService {
     public void delete(Integer id) {
         phieuGiamGiaRepository.delete(id);
     }
-
+    public List<PhieuGiamGia> search(String keyword, Integer trangThai) {
+        return phieuGiamGiaRepository.search(keyword, trangThai);
+    }
 }

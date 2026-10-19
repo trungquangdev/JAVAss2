@@ -71,8 +71,24 @@ public class ChiTietSanPhamController extends HttpServlet {
         request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
     }
 
+//    private void showChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        request.setAttribute("list", ctspService.getAll());
+//        loadComboboxData(request);
+//        request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
+//    }
+
     private void showChiTietSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", ctspService.getAll());
+        String idSPStr = request.getParameter("idSanPham");
+        String idMSStr = request.getParameter("idMauSac");
+        String idKCStr = request.getParameter("idKichCo");
+        String trangThaiStr = request.getParameter("trangThai");
+
+        Integer idSP = (idSPStr != null && !idSPStr.isEmpty()) ? Integer.valueOf(idSPStr) : null;
+        Integer idMS = (idMSStr != null && !idMSStr.isEmpty()) ? Integer.valueOf(idMSStr) : null;
+        Integer idKC = (idKCStr != null && !idKCStr.isEmpty()) ? Integer.valueOf(idKCStr) : null;
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        request.setAttribute("list", ctspService.search(idSP, idMS, idKC, trangThai));
         loadComboboxData(request);
         request.getRequestDispatcher("/chitietsanpham.jsp").forward(request, response);
     }

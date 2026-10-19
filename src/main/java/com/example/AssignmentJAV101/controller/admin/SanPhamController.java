@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import lombok.var;
 import org.apache.commons.beanutils.BeanUtils;
 
 import java.io.IOException;
@@ -58,7 +59,17 @@ public class SanPhamController extends HttpServlet {
     }
 
     private void showSanPham(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", sanPhamService.getAll());
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+
+        Integer trangThai = null;
+        if (trangThaiStr != null && !trangThaiStr.isEmpty()) {
+            trangThai = Integer.valueOf(trangThaiStr);
+        }
+
+        // Gọi hàm search thay vì getAll thông thường
+        var list = sanPhamService.search(keyword, trangThai);
+        request.setAttribute("list", list);
         request.getRequestDispatcher("/sanpham.jsp").forward(request, response);
     }
 

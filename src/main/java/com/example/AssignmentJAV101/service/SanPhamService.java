@@ -28,4 +28,8 @@ public class SanPhamService {
         sanPhamRepository.delete(id);
     }
 
+    public List<SanPham> search(String keyword, Integer trangThai) {
+        return sanPhamRepository.search(keyword, trangThai);
+    }
+
 }

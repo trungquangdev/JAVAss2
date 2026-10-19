@@ -67,7 +67,11 @@ public class NhanVienController extends HttpServlet {
 
     //show
     private void showNhanVien(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("list", nhanVienService.getAll());
+        String keyword = request.getParameter("keyword");
+        String trangThaiStr = request.getParameter("trangThai");
+        Integer trangThai = (trangThaiStr != null && !trangThaiStr.isEmpty()) ? Integer.valueOf(trangThaiStr) : null;
+
+        request.setAttribute("list", nhanVienService.search(keyword, trangThai));
         request.getRequestDispatcher("/nhanvien.jsp").forward(request, response);
     }
 

@@ -10,6 +10,23 @@
 
 <h2>Quản lý đợt giảm giá</h2>
 
+<form action="${pageContext.request.contextPath}/admin/dot-giam-gia" method="get" class="row g-3 mb-3">
+    <div class="col-md-5">
+        <input type="text" class="form-control" name="keyword" value="${param.keyword}" placeholder="Tìm theo mã, tên đợt...">
+    </div>
+    <div class="col-md-3">
+        <select class="form-select" name="trangThai">
+            <option value="">-- Tất cả trạng thái --</option>
+            <option value="1" ${param.trangThai == '1' ? 'selected' : ''}>Hoạt động</option>
+            <option value="0" ${param.trangThai == '0' ? 'selected' : ''}>Ngừng</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a href="${pageContext.request.contextPath}/admin/dot-giam-gia" class="btn btn-secondary">Làm mới</a>
+    </div>
+</form>
+
 <%-- Form Thêm --%>
 <form action="${pageContext.request.contextPath}/admin/dot-giam-gia/add" method="post">
     <input type="text" name="ma" placeholder="Mã đợt" required>
