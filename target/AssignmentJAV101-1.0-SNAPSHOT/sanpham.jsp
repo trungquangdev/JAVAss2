@@ -11,6 +11,13 @@
 <div class="container py-4">
     <h2 class="mb-4 text-primary fw-bold">Quản Lý Sản Phẩm</h2>
 
+    <!-- Dùng d-flex để đẩy tiêu đề sang trái và nút quay lại sang phải -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="${pageContext.request.contextPath}/admin.jsp" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-1"></i> Trang Chủ Admin
+        </a>
+    </div>
+
     <!-- Form Lọc & Tìm kiếm -->
     <form action="${pageContext.request.contextPath}/admin/san-pham" method="get" class="row g-3 mb-3">
         <div class="col-md-5">
@@ -78,12 +85,42 @@
         </tbody>
     </table>
 
-    <c:if test="${not empty detail}">
-        <div class="border p-3 mt-3">
-            <h3>Chi tiết sản phẩm</h3>
-            <p>ID: ${detail.id}</p><p>Mã: ${detail.ma}</p><p>Tên: ${detail.tenSanPham}</p><p>Mô tả: ${detail.moTa}</p><p>Trạng thái: ${detail.trangThai}</p>
-            <a href="${pageContext.request.contextPath}/admin/san-pham" class="btn btn-secondary btn-sm">Đóng chi tiết</a>
+    <!-- Modal Popup Chi tiết Sản phẩm -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="detailModalLabel">Chi tiết sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="modalId"></span></p>
+                    <p><strong>Mã:</strong> <span id="modalMa"></span></p>
+                    <p><strong>Tên sản phẩm:</strong> <span id="modalTen"></span></p>
+                    <p><strong>Mô tả:</strong> <span id="modalMoTa"></span></p>
+                    <p><strong>Trạng thái:</strong> <span id="modalTrangThai"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <!-- Script tự động kích hoạt Modal khi Controller truyền biến detail sang -->
+    <c:if test="${not empty detailSp}">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("modalId").innerText = "${detailSp.id}";
+                document.getElementById("modalMa").innerText = "${detailSp.ma}";
+                document.getElementById("modalTen").innerText = "${detailSp.tenSanPham}";
+                document.getElementById("modalMoTa").innerText = "${detailSp.moTa}";
+                document.getElementById("modalTrangThai").innerText = "${detailSp.trangThai == 1 ? 'Hoạt động' : 'Ngừng'}";
+
+                var myModal = new bootstrap.Modal(document.getElementById('detailModal'));
+                myModal.show();
+            });
+        </script>
     </c:if>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -11,30 +11,29 @@
 <div class="container py-4">
     <h2 class="mb-4 text-primary fw-bold">Quản Lý Biến Thể Sản Phẩm</h2>
 
-    <!-- Form Lọc -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="${pageContext.request.contextPath}/admin.jsp" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-1"></i> Trang Chủ Admin
+        </a>
+    </div>
+
     <form action="${pageContext.request.contextPath}/admin/chi-tiet-san-pham" method="get" class="row g-3 mb-3">
         <div class="col-md-3">
             <select class="form-select" name="idSanPham">
                 <option value="">-- Tất cả sản phẩm --</option>
-                <c:forEach items="${listSP}" var="sp">
-                    <option value="${sp.id}" ${param.idSanPham == sp.id ? 'selected' : ''}>${sp.tenSanPham}</option>
-                </c:forEach>
+                <c:forEach items="${listSP}" var="sp"><option value="${sp.id}" ${param.idSanPham == sp.id ? 'selected' : ''}>${sp.tenSanPham}</option></c:forEach>
             </select>
         </div>
         <div class="col-md-2">
             <select class="form-select" name="idMauSac">
                 <option value="">-- Màu sắc --</option>
-                <c:forEach items="${listMS}" var="ms">
-                    <option value="${ms.id}" ${param.idMauSac == ms.id ? 'selected' : ''}>${ms.tenMau}</option>
-                </c:forEach>
+                <c:forEach items="${listMS}" var="ms"><option value="${ms.id}" ${param.idMauSac == ms.id ? 'selected' : ''}>${ms.tenMau}</option></c:forEach>
             </select>
         </div>
         <div class="col-md-2">
             <select class="form-select" name="idKichCo">
                 <option value="">-- Kích cỡ --</option>
-                <c:forEach items="${listKC}" var="kc">
-                    <option value="${kc.id}" ${param.idKichCo == kc.id ? 'selected' : ''}>${kc.tenSize}</option>
-                </c:forEach>
+                <c:forEach items="${listKC}" var="kc"><option value="${kc.id}" ${param.idKichCo == kc.id ? 'selected' : ''}>${kc.tenSize}</option></c:forEach>
             </select>
         </div>
         <div class="col-md-2">
@@ -50,7 +49,6 @@
         </div>
     </form>
 
-    <!-- Form Thêm -->
     <div class="card shadow-sm mb-4 p-3">
         <h4>Thêm Biến Thể</h4>
         <form action="${pageContext.request.contextPath}/admin/chi-tiet-san-pham/add" method="post" class="row g-3">
@@ -78,7 +76,6 @@
         </form>
     </div>
 
-    <!-- Form Sửa -->
     <c:if test="${not empty ctspEdit}">
         <div class="card shadow-sm mb-4 p-3 border-warning">
             <h4>Sửa Biến Thể</h4>
@@ -86,23 +83,17 @@
                 <input type="hidden" name="id" value="${ctspEdit.id}">
                 <div class="col-md-3">
                     <select class="form-select" name="idSanPham">
-                        <c:forEach items="${listSP}" var="sp">
-                            <option value="${sp.id}" ${sp.id == ctspEdit.sanPham.id ? 'selected' : ''}>${sp.tenSanPham}</option>
-                        </c:forEach>
+                        <c:forEach items="${listSP}" var="sp"><option value="${sp.id}" ${sp.id == ctspEdit.sanPham.id ? 'selected' : ''}>${sp.tenSanPham}</option></c:forEach>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" name="idMauSac">
-                        <c:forEach items="${listMS}" var="ms">
-                            <option value="${ms.id}" ${ms.id == ctspEdit.mauSac.id ? 'selected' : ''}>${ms.tenMau}</option>
-                        </c:forEach>
+                        <c:forEach items="${listMS}" var="ms"><option value="${ms.id}" ${ms.id == ctspEdit.mauSac.id ? 'selected' : ''}>${ms.tenMau}</option></c:forEach>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <select class="form-select" name="idKichCo">
-                        <c:forEach items="${listKC}" var="kc">
-                            <option value="${kc.id}" ${kc.id == ctspEdit.kichCo.id ? 'selected' : ''}>${kc.tenSize}</option>
-                        </c:forEach>
+                        <c:forEach items="${listKC}" var="kc"><option value="${kc.id}" ${kc.id == ctspEdit.kichCo.id ? 'selected' : ''}>${kc.tenSize}</option></c:forEach>
                     </select>
                 </div>
                 <div class="col-md-2"><input type="number" step="0.01" class="form-control" name="giaBan" value="${ctspEdit.giaBan}" required></div>
@@ -131,12 +122,38 @@
         </tbody>
     </table>
 
-    <c:if test="${not empty detailCtsp}">
-        <div class="border p-3 mt-3">
-            <h3>Chi tiết biến thể sản phẩm</h3>
-            <p>ID: ${detailCtsp.id}</p><p>Sản phẩm: ${detailCtsp.sanPham.tenSanPham}</p><p>Màu: ${detailCtsp.mauSac.tenMau}</p><p>Size: ${detailCtsp.kichCo.tenSize}</p><p>Giá: ${detailCtsp.giaBan}</p><p>Tồn: ${detailCtsp.soLuongTon}</p>
-            <a href="${pageContext.request.contextPath}/admin/chi-tiet-san-pham" class="btn btn-secondary btn-sm">Đóng chi tiết</a>
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Chi tiết biến thể sản phẩm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="modalId"></span></p>
+                    <p><strong>Sản phẩm:</strong> <span id="modalSP"></span></p>
+                    <p><strong>Màu sắc:</strong> <span id="modalMau"></span></p>
+                    <p><strong>Kích cỡ:</strong> <span id="modalSize"></span></p>
+                    <p><strong>Giá bán:</strong> <span id="modalGia"></span></p>
+                    <p><strong>Số lượng tồn:</strong> <span id="modalTon"></span></p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button></div>
+            </div>
         </div>
+    </div>
+
+    <c:if test="${not empty detailCtsp}">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("modalId").innerText = "${detailCtsp.id}";
+                document.getElementById("modalSP").innerText = "${detailCtsp.sanPham.tenSanPham}";
+                document.getElementById("modalMau").innerText = "${detailCtsp.mauSac.tenMau}";
+                document.getElementById("modalSize").innerText = "${detailCtsp.kichCo.tenSize}";
+                document.getElementById("modalGia").innerText = "${detailCtsp.giaBan}";
+                document.getElementById("modalTon").innerText = "${detailCtsp.soLuongTon}";
+                new bootstrap.Modal(document.getElementById('detailModal')).show();
+            });
+        </script>
     </c:if>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

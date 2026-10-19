@@ -11,6 +11,12 @@
 <div class="container py-4">
     <h2 class="mb-4 text-primary fw-bold">Quản Lý Khách Hàng</h2>
 
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="${pageContext.request.contextPath}/admin.jsp" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-1"></i> Trang Chủ Admin
+        </a>
+    </div>
+
     <!-- Form Lọc & Tìm kiếm -->
     <form action="${pageContext.request.contextPath}/admin/khach-hang" method="get" class="row g-3 mb-3">
         <div class="col-md-5">

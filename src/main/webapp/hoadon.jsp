@@ -12,6 +12,12 @@
 <div class="container py-4">
     <h2 class="mb-4 text-primary fw-bold">Quản Lý Hóa Đơn</h2>
 
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="${pageContext.request.contextPath}/admin.jsp" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-1"></i> Trang Chủ Admin
+        </a>
+    </div>
+
     <div class="card shadow-sm mb-4 p-3">
         <h4>Thêm Hóa Đơn</h4>
         <form action="${pageContext.request.contextPath}/admin/hoa-don/add" method="post" class="row g-3">
@@ -97,12 +103,34 @@
         </tbody>
     </table>
 
-    <c:if test="${not empty detailHd}">
-        <div class="border p-3 mt-3">
-            <h3>Chi tiết hóa đơn</h3>
-            <p>Mã HĐ: ${detailHd.maHoaDon}</p><p>Khách hàng: ${detailHd.khachHang.ten}</p><p>Nhân viên: ${detailHd.nhanVien.ten}</p><p>Tổng tiền: ${detailHd.tongTien}</p>
-            <a href="${pageContext.request.contextPath}/admin/hoa-don" class="btn btn-secondary btn-sm">Đóng chi tiết</a>
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Chi tiết hóa đơn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Mã HĐ:</strong> <span id="modalMa"></span></p>
+                    <p><strong>Khách hàng:</strong> <span id="modalKH"></span></p>
+                    <p><strong>Nhân viên:</strong> <span id="modalNV"></span></p>
+                    <p><strong>Tổng tiền:</strong> <span id="modalTien"></span></p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button></div>
+            </div>
         </div>
+    </div>
+
+    <c:if test="${not empty detailHd}">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("modalMa").innerText = "${detailHd.maHoaDon}";
+                document.getElementById("modalKH").innerText = "${detailHd.khachHang.ten}";
+                document.getElementById("modalNV").innerText = "${detailHd.nhanVien.ten}";
+                document.getElementById("modalTien").innerText = "${detailHd.tongTien}";
+                new bootstrap.Modal(document.getElementById('detailModal')).show();
+            });
+        </script>
     </c:if>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

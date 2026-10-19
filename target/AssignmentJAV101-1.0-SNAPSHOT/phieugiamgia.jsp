@@ -12,9 +12,17 @@
 <div class="container py-4">
     <h2 class="mb-4 text-primary fw-bold">Quản Lý Phiếu Giảm Giá</h2>
 
-    <!-- Form Lọc -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="${pageContext.request.contextPath}/admin.jsp" class="btn btn-outline-secondary">
+            <i class="fas fa-home me-1"></i> Trang Chủ Admin
+        </a>
+    </div>
+
+    <!-- Form Lọc & Tìm kiếm -->
     <form action="${pageContext.request.contextPath}/admin/phieu-giam-gia" method="get" class="row g-3 mb-3">
-        <div class="col-md-5"><input type="text" class="form-control" name="keyword" value="${param.keyword}" placeholder="Tìm theo mã, tên phiếu..."></div>
+        <div class="col-md-5">
+            <input type="text" class="form-control" name="keyword" value="${param.keyword}" placeholder="Tìm theo mã, tên phiếu...">
+        </div>
         <div class="col-md-3">
             <select class="form-select" name="trangThai">
                 <option value="">-- Tất cả trạng thái --</option>
@@ -28,10 +36,11 @@
         </div>
     </form>
 
+    <!-- Form Thêm -->
     <div class="card shadow-sm mb-4 p-3">
         <h4>Thêm Phiếu Giảm Giá</h4>
         <form action="${pageContext.request.contextPath}/admin/phieu-giam-gia/add" method="post" class="row g-3">
-            <div class="col-md-3"><input type="text" class="form-control" name="ma" placeholder="Mã" required></div>
+            <div class="col-md-3"><input type="text" class="form-control" name="ma" placeholder="Mã phiếu" required></div>
             <div class="col-md-3"><input type="text" class="form-control" name="tenPhieu" placeholder="Tên phiếu" required></div>
             <div class="col-md-3"><input type="number" step="0.01" class="form-control" name="giaTriGiam" placeholder="Giá trị giảm" required></div>
             <div class="col-md-3"><input type="number" step="0.01" class="form-control" name="giamToiDa" placeholder="Giảm tối đa" required></div>
@@ -43,6 +52,7 @@
         </form>
     </div>
 
+    <!-- Form Sửa -->
     <c:if test="${not empty pggEdit}">
         <div class="card shadow-sm mb-4 p-3 border-warning">
             <h4>Sửa Phiếu Giảm Giá</h4>
@@ -65,8 +75,11 @@
         </div>
     </c:if>
 
+    <!-- Bảng danh sách -->
     <table class="table table-bordered table-striped">
-        <thead class="table-dark"><tr><th>Mã</th><th>Tên phiếu</th><th>Giá trị giảm</th><th>Giảm tối đa</th><th>Đơn tối thiểu</th><th>Số lượng</th><th>Ngày kết thúc</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+        <thead class="table-dark">
+        <tr><th>Mã</th><th>Tên phiếu</th><th>Giá trị giảm</th><th>Giảm tối đa</th><th>Đơn tối thiểu</th><th>Số lượng</th><th>Ngày kết thúc</th><th>Trạng thái</th><th>Thao tác</th></tr>
+        </thead>
         <tbody>
         <c:forEach items="${list}" var="pgg">
             <tr>
@@ -81,12 +94,41 @@
         </tbody>
     </table>
 
-    <c:if test="${not empty detailPgg}">
-        <div class="border p-3 mt-3">
-            <h3>Chi tiết phiếu giảm giá</h3>
-            <p>ID: ${detailPgg.id}</p><p>Mã: ${detailPgg.ma}</p><p>Tên phiếu: ${detailPgg.tenPhieu}</p><p>Giá trị giảm: ${detailPgg.giaTriGiam}</p><p>Giảm tối đa: ${detailPgg.giamToiDa}</p><p>Đơn tối thiểu: ${detailPgg.donToiThieu}</p><p>Số lượng: ${detailPgg.soLuong}</p>
-            <a href="${pageContext.request.contextPath}/admin/phieu-giam-gia" class="btn btn-secondary btn-sm">Đóng chi tiết</a>
+    <!-- Modal Popup Chi tiết -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Chi tiết phiếu giảm giá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>ID:</strong> <span id="modalId"></span></p>
+                    <p><strong>Mã:</strong> <span id="modalMa"></span></p>
+                    <p><strong>Tên phiếu:</strong> <span id="modalTen"></span></p>
+                    <p><strong>Giá trị giảm:</strong> <span id="modalGiam"></span></p>
+                    <p><strong>Giảm tối đa:</strong> <span id="modalMax"></span></p>
+                    <p><strong>Đơn tối thiểu:</strong> <span id="modalMin"></span></p>
+                    <p><strong>Số lượng:</strong> <span id="modalSL"></span></p>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button></div>
+            </div>
         </div>
+    </div>
+
+    <c:if test="${not empty detailPgg}">
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                document.getElementById("modalId").innerText = "${detailPgg.id}";
+                document.getElementById("modalMa").innerText = "${detailPgg.ma}";
+                document.getElementById("modalTen").innerText = "${detailPgg.tenPhieu}";
+                document.getElementById("modalGiam").innerText = "${detailPgg.giaTriGiam}";
+                document.getElementById("modalMax").innerText = "${detailPgg.giamToiDa}";
+                document.getElementById("modalMin").innerText = "${detailPgg.donToiThieu}";
+                document.getElementById("modalSL").innerText = "${detailPgg.soLuong}";
+                new bootstrap.Modal(document.getElementById('detailModal')).show();
+            });
+        </script>
     </c:if>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
